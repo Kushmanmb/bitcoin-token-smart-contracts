@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  test-ethereum:
+    name: Test Ethereum contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: ethereum
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '12'
+          cache: 'npm'
+          cache-dependency-path: ethereum/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile contracts
+        run: node_modules/.bin/truffle compile
+
+      - name: Run tests
+        run: node_modules/.bin/truffle test
+
+  test-evm-base-contracts:
+    name: Test EVM base contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: evm-base-contracts
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '12'
+          cache: 'npm'
+          cache-dependency-path: evm-base-contracts/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile contracts
+        run: npm run compile
+
+      - name: Run tests
+        run: npm test
